@@ -1,8 +1,11 @@
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
-library(dplyr)
+
+
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')library(dplyr)
+
+library(ggplot2)
 library(cowplot)
 library(reshape2)
 library(grid)
@@ -10,6 +13,7 @@ library(grid)
 
 #original ebwidth is 0.25
 #figure settings:
+theme_set(theme_cowplot())
 themes = theme(axis.text=element_text(size=18), axis.title=element_text(size=16),strip.text.x = element_text(size = 14))
 ylims = ylim(-0,25)
 jitterw = 0.12

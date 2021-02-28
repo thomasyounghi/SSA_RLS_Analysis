@@ -21,6 +21,7 @@ ebwidth = 0.25;
 bwidth = 0.3
 yscale = scale_y_continuous(expand = c(0,0),limits = c(0,10.2))
 fillc = "gray66"
+border = theme(panel.border=element_rect(colour="black",linetype="solid",fill=NA,size=1))
 
 info = read.csv('./CombinedData/info_sameasmanualbgflcorrected.csv')
 rfp = read.csv('./ProcessedFl/rfpcellsnbadj.csv')

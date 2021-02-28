@@ -1,15 +1,14 @@
-#Outputs yfpbgcorrected_manuallycircled.csv, rfpbgcorrected_manuallycircled.csv in the ./Combined/ folder
 #Subtracts background fl values found in ./AllManualBG/ from the corresponding trap measurements in ./circledcellfl/.  These trap measurements were obtained by manually circling regions of the cells of interest
 #Ignore's bg measurement if there are less than 1000 background pixels. After subtraction the bgcorrected table has an NA
 #Removes cells for which there are less than 6 fluorescent measurements
+#Outputs yfpbgcorrected_manuallycircled.csv, rfpbgcorrected_manuallycircled.csv in the ./Combined/ folder
 
 
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
 
-
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
 library(dplyr)
 library(reshape2)
 library(stringr)
@@ -48,6 +47,7 @@ circyfp[is.na(circyfp)]=NA
 circrfp[is.na(circrfp)]=NA
 
 
+
 #Reshape the rawbg measurements into an array
 numpixbg = dcast(rawbg,filenames+xy+trap~time,value.var='numbgpix')
 c2bg = dcast(rawbg,filenames+xy+trap~time,value.var='c2avgbgpix')
@@ -65,7 +65,6 @@ manualdateC2 = manualdateC2[,2]
 
 manualdateC3 = str_match(circrfp$filenames,"./circledcellfl/(\\w+)_circled_meanC3.csv")
 manualdateC3 = manualdateC3[,2]
-
 
 manualdate = manualdateC2;
 

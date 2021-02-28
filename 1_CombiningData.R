@@ -3,10 +3,10 @@
 #Add labels to be used for publication (redundant with the official strain names, doxtime, etc)
 
 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
 library(dplyr)
 library(stringr)
 
@@ -100,8 +100,8 @@ trap = info$trap
 yfp = data.frame(id,date,xy,trap,replabel,yfp)
 rfp = data.frame(id,date,xy,trap,replabel,rfp)
 
-write.csv(info,"./CombinedData/infoall.csv",row.names=FALSE);
-write.csv(yfp,"./CombinedData/yfpall.csv",row.names=FALSE);
-write.csv(rfp,"./CombinedData/rfpall.csv",row.names=FALSE);
+write.csv(info,"./CombinedData/infoall.csv",row.names=FALSE)
+write.csv(yfp,"./CombinedData/yfpall.csv",row.names=FALSE)
+write.csv(rfp,"./CombinedData/rfpall.csv",row.names=FALSE)
 
 

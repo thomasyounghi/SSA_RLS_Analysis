@@ -1,13 +1,19 @@
-#Here we plot individual RFP trajectories and label by 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+#Assessing RFP loss in the SSA strain containing the degron tagged mCherry
+#Results are saved in './figures/rfpdegron_cuttingefficiency/'
+
+
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
+library(ggplot2)
 library(dplyr)
 library(cowplot)
 library(reshape2)
 
 #figure settings:
+theme_set(theme_cowplot())
 themes = theme(axis.text=element_text(size=14), axis.title=element_text(size=16),strip.text.x = element_text(size = 14),panel.border = element_rect(colour="black",linetype="solid",fill=NA,size=1))
 themes = theme(axis.text=element_text(size=19), axis.title=element_text(size=16),strip.text.x = element_text(size = 14),panel.border = element_rect(colour="black",linetype="solid",fill=NA,size=1))
 
@@ -43,8 +49,6 @@ yfp = filter(yfp,condition)
 info$agestrain = factor(info$agestrain,levels = c('SSAdeg young','SSAdeg old','SSAdegcontrol old'),labels=c('SSA+\nRFPdegron\nYoung','SSA+\nRFPdegron\nOld','SSAcontrol+\nRFPdegron\nOld'))
 
 
-
-
 #filter out young cells less than 5 generations and old cells < 15 generations at the time of doxycycline exposure
 bt = getbudtimes(info)
 ageatdox = ageattimes(bt,info$doxtime)
@@ -61,9 +65,7 @@ rfp = filter(rfp,condition)
 yfp = filter(yfp,condition)
 
 
-
-
-#Plot the rfp trajectories
+#Get only the RFP measurements
 rfponly = rfp[,6:ncol(rfp)]
 yfponly = yfp[,6:ncol(yfp)]
 rfponly = rfponly[,1:24]
@@ -116,9 +118,6 @@ alltrue = rep(TRUE,length(timetrailingoff))
 
 agestrain = info$agestrain
 
-
-
-
 rfptrailingdf = data.frame(agestrain,rfpnegover4pt5h_atfli24,rfpnegleq4pt5h_atfli24,alwaysbelowco_atfli24,notrailingRFP_atfli24, yestrailingRFP_atfli24,alltrue)
 rfptrailingdfmelted  = melt(rfptrailingdf, measure.vars = c('rfpnegover4pt5h_atfli24','rfpnegleq4pt5h_atfli24','alwaysbelowco_atfli24','notrailingRFP_atfli24', 'yestrailingRFP_atfli24','alltrue'))
 stats = rfptrailingdfmelted%>%group_by(agestrain,variable) %>% summarize(count=sum(value,na.rm=TRUE))
@@ -127,11 +126,6 @@ colnames(tabrfptrailing)[colnames(tabrfptrailing)=='alltrue'] = 'totalcells'
 outfn = paste(outfolder,'rfptrailingstats_byagestrain_fli24.csv',sep="")
 write.csv(tabrfptrailing,outfn)
 
-
-
-#Comparing YFP outcomes with whether or 
-infoneveraboveco = info[is.na(lastaboverfpco),]
-table(infoneveraboveco$agestrain,infoneveraboveco$yfpclass)
 
 
 ##Cutting Efficiency calculation.
@@ -148,10 +142,6 @@ info = data.frame(rfplost,info)
 reporcut = info %>% group_by(agestrain) %>% summarize(nrfplost = sum(rfplost),nrepaired = sum(yfpclass=='turnedon'),nrfplost_or_yfprepaired = sum(rfplost | yfpclass9hpdx=='turnedon'),total=n(),nsomerfpaboveandyfpinitbelow = sum(!is.na(timetrailingoff) & yfpclass9hpdx !='alwayson'))
 outfilename = paste(outfolder,'reporcut_timetrailingoffover4pt5horyfprep.csv',sep="")
 write.csv(reporcut,outfilename,row.names=TRUE)
-
-
-
-
 
 
 #Comparing RFP levels before and after the drop.  We partition the measurements to the trailing RFPoff measurements and the preceding time.  Compute the mean for each time frame.  
@@ -181,7 +171,6 @@ ggsave(file = plotfilename,p1,dpi=600,width=6,height=4.5)
 removeggplottext(p1,plotfilename,4,600,6,4.5)
 
 
-
 #Now plotting mean RFP after (of course only for cells which show an RFP drop to background)
 p1 = ggplot(info,aes(agestrain,meanafter)) + geom_boxplot(width=ebwidth,outlier.shape=NA)+ geom_jitter(height=0,width=jitterw,colour="red") + ylab('RFP (AU)') + themes + xlab('') + themes
 plotfilename = paste(outfolder,'jitter_rfpafter_wrtabsoluterfpcotime.pdf',sep="")
@@ -192,14 +181,4 @@ removeggplottext(p1,plotfilename,4,600,6,4.5)
 summary <- info %>% group_by(agestrain) %>% summarize(meanrfpbefore = mean(meanbefore,na.rm=TRUE),sdrfpbefore=sd(meanbefore,na.rm=TRUE),meanrfpafter=mean(meanafter,na.rm=TRUE),sdrfpafter=sd(meanafter,na.rm=TRUE))
 outfilename = paste(outfolder,'meanrfp_relativetodropbelowco.csv',sep="")
 write.csv(summary,outfilename)
-
-
-
-
-
-
-
-
-
-
 

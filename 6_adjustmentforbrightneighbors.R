@@ -1,14 +1,14 @@
-#Based on the measurements identified in './ProblematicNeighborMeasurements', generates a correction matrix
-#for the cells in './ProcessedFl/yfpcells.csv' or './ProcessedFl/rfpcells.csv'
-#Columns of the correction matrix correspond to time, rows to cells
-#Subtracted values are the means of test background rois in the './ProblematicNeighborMeasurements/' file
+#If there are bright neighboring cells near the trapped cell of interest, correct the cell of interest fluorescence measurement by the average fluorescence in a test roi nearby the bright neighboring cell.
+#The test roi is a region adjacent to the bright neighboring cell that is not occupied by any cell.
+#Problematic neighbor measurements are in './ProblematicNeighborMeasurements'
 #If it was not possible to measure a test background roi, no correction is made, even when a bright neighbor is near the cell of interest.
+#Corrected trapped cell measurments are saved in './ProcessedFl' as 'yfpcellsnbadj.csv' and 'rfpcellsnbadj.csv'
 
-#we need to specify how the columns of the two 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
 library(dplyr)
 library(ggplot2)
 library(reshape2)
@@ -32,7 +32,9 @@ dummycell$filenames = 'dummycell'
 
 
 
-#We make a correction matrix. If it was not possible to measure the fluorescence of a test roi, the value is set to 0.  Otherwise we add back the avg background and subtract the average of the test roi bgs
+#Making a correction matrix to add to the background corrected fluoresence measurements of the cells of interest. The values stored in this correction matrix are (average bg in large rectangular bg region) - (average fluoresence of test roi)
+#The correction is only added for measurements where there is a bright cell next to the cell of interest.
+#If it was not possible to measure the fluorescence of a test roi, and a bright neighbor is present, no adjustment is made.
 yfpcorrections = problemyfps$c2avgbgpix-problemyfps$avgtestyfp;
 yfpcorrections[is.na(yfpcorrections)] = 0;
 problemyfps = cbind(problemyfps,yfpcorrections)
@@ -40,11 +42,11 @@ problemyfps = problemyfps %>% group_by(filenames,xy,trap,time) %>% summarize(flc
 problemyfps = data.frame(problemyfps)
 
 
-#We remove any correction  values less than -100, since these probably correspond to situations in which a cell was present in the test roi region.
+#Remove any correction  values less than -100, since these correspond to situations in which a bright cell was present in the test roi region.
 hist(problemyfps$flcorrection)
 problemyfps = filter(problemyfps,problemyfps$flcorrection >= -100)
 
-##Adding a dummy cell with all possible times so the correction matrix has a column for each time point.
+#Adding a dummy cell with all possible times so the correction matrix has a column for each time point.
 problemyfps = rbind(problemyfps,dummycell)
 
 yfpcorrectionmat = dcast(problemyfps,filenames+xy+trap~time,value.var='flcorrection')

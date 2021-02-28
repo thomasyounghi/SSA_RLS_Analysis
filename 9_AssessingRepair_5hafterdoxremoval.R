@@ -1,13 +1,13 @@
-#Here we take a look at the single cell YFP classification data.
-#For cells alive at 5 h after doxycycline removal we compute the fraction repaired by experiment and save this in a table.  This will be used look at the experimental variability in repair fraction.
-#For each experiment, there is a column for number of cells, number of cells repaired based on appearance of YFP,  
+#Assessing repair for each strain using the single cell YFP classification data.
+#For cells alive at 5 h after doxycycline removal, the repair fraction for each experiment is calculated. Results are saved in './Tables/yfprepair_outoftotal.csv'
+#The narrowed down list of cells used to calculate repair fractions are saved in './CombinedData/' as 'info_offatdox_alive5hafter.csv','yfpcells_offatdox_alive5hafter.csv','rfpcells_offatdox_alive5hafter.csv'
 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
 library(dplyr)
-library(ggplot2)
 library(reshape2)
 
 
@@ -87,10 +87,5 @@ write.csv(rfpcells,'./CombinedData/rfpcells_offatdox_alive5hafter.csv',row.names
 stats <- cells %>% group_by(strain,doxtime,replabel) %>% summarize(nrepair = sum(yfpclass9hpdx=='turnedon'),total = n())
 stats <- mutate(stats,fracrepaired = nrepair/total)
 write.csv(stats,'./Tables/yfprepair_outoftotal.csv')
-
-
-
-
-
 
 

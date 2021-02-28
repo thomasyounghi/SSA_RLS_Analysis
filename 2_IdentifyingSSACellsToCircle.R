@@ -1,10 +1,13 @@
 #Based on the combined data from multiple experiments, make a list of the cells that are of the appropriate ages for study
-#We only include cells from the old experiments >= age 15 at the time of doxycycline exposure
+#These cells will be manually circled to extract higher quality fluorescence measurements
+#For old cell experiments we only include cells >= age 15 at the time of doxycycline exposure
+#The cells satisfying the criteria are stored in "TrapsToMeasure_oldover15/aliveafterdoxadded_xxx", where xxx describes the relevant movie date and strain
 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
 library(dplyr)
 library(ggplot2)
 library(reshape2)

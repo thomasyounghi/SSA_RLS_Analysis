@@ -6,7 +6,6 @@
 #The lists contain the time, and xy location, and trap number for problematic measurements. 
 
 
-#we need to specify how the columns of the two 
 setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
 source('./functions/timeseries_func.Rd')
 source('./functions/func.Rd')

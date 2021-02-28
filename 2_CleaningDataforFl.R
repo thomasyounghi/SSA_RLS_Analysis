@@ -1,10 +1,15 @@
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis')
 #Determining the cells for which there are fluorescence measurements. 
 #This is based on the time that the traps are fully occupied and the last observation time
+#Cells for which there are no fluorescence measurements, young cells born
+#before time 50, and cells that fail to divide prior to dox removal and 
+#not removed
+#Remaining cell data is saved in "./CombinedData/infoall2.csv", "./#CombinedData/yfpall2.csv",CombinedData/rfpall2.csv"
 
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
 library(dplyr)
 library(ggplot2)
 library(reshape2)

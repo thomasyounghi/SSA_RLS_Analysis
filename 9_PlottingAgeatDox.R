@@ -1,7 +1,13 @@
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+#Plotting the age of cells at doxycycline treatment time, for all strains
+#Tabulating the mean and sem of the average age of cells within each replicate.
+#Figures are saved in './figures/ageatdox/
+
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
+library(ggplot2)
 library(dplyr)
 library(cowplot)
 library(reshape2)
@@ -10,6 +16,7 @@ library(grid)
 
 #original ebwidth is 0.25
 #figure settings:
+theme_set(theme_cowplot())
 themes = theme(axis.text=element_text(size=14), axis.title=element_text(size=16),strip.text.x = element_text(size = 14))
 themes = theme(axis.text=element_text(size=17), axis.title=element_text(size=20),strip.text.x = element_text(size = 20))
 ylims = ylim(-0,25)
@@ -19,12 +26,10 @@ ylabel = ylab("Age(generations)");
 xscale = scale_x_discrete(expand = c(0.6,0))
 border = theme(panel.border=element_rect(colour="black",linetype="solid",fill=NA,size=1))
 
-
-
 #folder to save in
 outfolder = './figures/ageatdox/'
 
-
+#cells for which YFP repair is assessed
 info = read.csv('./CombinedData/info_offatdox_alive5hafter.csv')
 
 info$agestrain = factor(info$agestrain,levels = c('SSAcontrol young','SSAcontrol old','SSA young','SSA old','SSAhet young','SSAhet old','SSA Dnl4ko young','SSA Dnl4ko old','SSAdegcontrol young','SSAdegcontrol old','SSAdeg young','SSAdeg old','SSA3xCln2 old'))
@@ -185,10 +190,6 @@ removeggplottext(p1,plotfilename,4,600,8,4.5)
 
 
 geom_text(data=tograph,aes(x=expage,y=ageatdox,label=floor(ageatdox)),nudge_x=0.1)
-
-
-
-
 
 
 

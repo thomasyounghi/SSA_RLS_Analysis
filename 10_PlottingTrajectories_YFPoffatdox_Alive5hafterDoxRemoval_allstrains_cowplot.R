@@ -1,8 +1,12 @@
-#Here we plot individual RFP trajectories and label by 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+#Here we plot 20 single cell YFP traces for all strains that can be cut and repaired by SSA
+#Results saved to './figures/fltraj_forpaper/
+
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
+library(ggplot2)
 library(dplyr)
 library(cowplot)
 library(reshape2)
@@ -19,6 +23,7 @@ rfp = data.frame(strain,agestrain,rfp)
 outfolder = './figures/fltraj_forpaper/'
 
 #figure settings:
+theme_set(theme_cowplot())
 ylogscale = scale_y_continuous(trans=log10_trans(),breaks=trans_breaks("log10",function(x) 10^x),labels=trans_format("log10",math_format(10^.x)),limits=c(0.2,2000))
 xscale = scale_x_continuous(breaks = seq(0,12,2))
 fonts = theme(axis.text=element_text(size=8), axis.title=element_text(size=8),strip.text.x = element_text(size = 8),plot.title=element_text(size=8))
@@ -90,7 +95,7 @@ for(i in 1:length(exptoplotids)){
 	curryfpsplit = split(curryfp,curryfp$id)	
 	listofplots = list();
 	print(length(curryfpsplit))
-	for(j in 1:20){
+	for(j in 1:min(20,length(curryfpsplit))){
 		print(j)
 		curryfp = curryfpsplit[[j]]
 		title = ''

@@ -1,14 +1,14 @@
-#Outputs yfpbgcorrected.csv, rfpbgcorrected.csv,infosameasmanualbgcorrected.csv in the ./Combined/ folder
-#Subtracts background fl values found in ./AllManualBG/ from the corresponding trap measurements in yfpall2.csv,rfpall2.csv
-#Ignore's bg measurement if there are less than 1000 background pixels. After subtraction the bgcorrected table has an NA
-#Removes cells for which there are less than 6 fluorescent measurements
+#Subtracts background fl values found in ./AllManualBG/ from the corresponding trap measurements in yfpall2.csv,rfpall2.csv.  
+#The trap measurements were obtained from a fixed masked applied in the general area where cells were trapped. They will later be manually checked to make sure that at these times, the masks actually lie within the outline of the trapped cell.
+#Ignores background measurement if there are less than 1000 background pixels. After subtraction, these measurments are NA.
+#Cells for which there are less than 6 fluorescent measurements are removed
+#Background subtracted measurements are saved in ./Combined/ folder: yfpbgcorrected.csv, rfpbgcorrected.csv,infosameasmanualbgcorrected.csv 
 
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
 
-
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
 library(dplyr)
 library(reshape2)
 library(stringr)

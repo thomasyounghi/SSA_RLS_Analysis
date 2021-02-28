@@ -1,10 +1,12 @@
-
+#Calculating and plotting the fraction of cells repaired in the next 5 h for cells that were unrepaired at the 9 hour post-dox time point
+#Results are saved in './figures/repairbeyond9hpostdoxaddition/'
 
 setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
 source('./functions/timeseries_func.Rd')
 source('./functions/func.Rd')
-source('./functions/Preprocessing_func.Rd')library(dplyr)
+source('./functions/Preprocessing_func.Rd')
 
+library(dplyr)
 library(ggplot2)
 library(cowplot)
 library(reshape2)

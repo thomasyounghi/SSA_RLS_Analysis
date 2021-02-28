@@ -1,10 +1,13 @@
-#Purpose of the this script is to merge the fluorescence measurements obtained by manually circling cells and automatically circling cells
+#Merges the fluorescence measurements obtained by manually circling cells and automatically applying a fixed mask within each trap.
+#These measurements have already been corrected by subtracting background fluorescence
+#Measurements derived from the fixed masks are replaced with measurements derived from manually circled cells.
+#Results saved in './ProcessedFl/' as 'yfpcells.csv', and 'rfpcells.csv' 
 
-#we need to specify how the columns of the two 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
 library(dplyr)
 library(ggplot2)
 library(reshape2)
@@ -20,6 +23,7 @@ date = str_match(yfpmanual$filenames,"./circledcellfl/(\\w+)_circled_meanC2.csv"
 date = date[,2]
 manualids = cbind(date,yfpmanual[,2:3])
 manualids = paste(manualids$date,manualids$xy,manualids$trap)
+
 
 #The data frame containing the merged manually circled and automatically measured measurements
 firstfcauto = 6;
@@ -39,7 +43,7 @@ matches = match(manualids,autoids)
 positioninmanual = which(!is.na(matches))
 matches = matches[!is.na(matches)]
 
-
+#Replacing measurements obtained using a fixed mask, with measurements from manually circling cells
 for(i in 1:length(matches)){
 	yfpvalues = yfpmanual[positioninmanual[i],]
 	rfpvalues = rfpmanual[positioninmanual[i],]
@@ -50,7 +54,7 @@ for(i in 1:length(matches)){
 }
 
 
-#Now we remove any fluorescent measurements occuring before the birth of the cell.  Such measurements are made in error
+#Now remove any fluorescent measurements occuring before the birth of the cell.  Such measurements are made in error
 #Removing invalid measurements for each cell (based when the cells are marked as burst or interfered with
 flstart = mapply(firstflindexafter,info$birth,info$flfreq,info$lastibeforepart2+1)
 
@@ -66,9 +70,7 @@ yfp = mapply(removeleftvalues,yfp,flstart)
 yfp = t(yfp)
 
 
-
-
-#YFP combined is formed by filling in the automatic fluorescence measurements with the manually measured ones.
+#Adding back non-fluorescence information columns to the fluorescence measurements
 yfpcombined = cbind(yfpauto[,1:(firstfcauto-1)],yfp)
 rfpcombined = cbind(rfpauto[,1:(firstfcauto-1)],rfp)
 

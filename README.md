@@ -1,7 +1,7 @@
 # SSA_RLS_Analysis
 Analysis scripts for measuring the effect of replicative aging on single strand annealing in yeast cells.
 
-#Order to run analyses scripts
+# Order to run analyses scripts
 1_CombiningData.R
 
 2_CleaningDataforFl.R

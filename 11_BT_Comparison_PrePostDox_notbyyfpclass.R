@@ -1,10 +1,16 @@
+#Calculate average budding time for each strain+age conditition pre and post addition of doxycycline
+#'Pre' means the 4 hour window preciding doxycycline addition
+#'Post' means the 9 hour window from doxycycline addition (including restoration of normal media)
+#Average budding times in each window were previously taken for each cell. Here the cell averages are themselves averaged.
+#Results are plotted and saved in './figures/avgbt_notbyyfp/', and './figures/avgbt_notbyyfp_forpaper/'
 
 
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+library(ggplot2)
 library(dplyr)
 library(cowplot)
 library(reshape2)
@@ -14,12 +20,14 @@ library(scales)
 
 
 #figure settings:
+theme_set(theme_cowplot())
 themes = theme(axis.text=element_text(size=14), axis.title=element_text(size=16),strip.text.x = element_text(size = 16,margin = margin(.3,0,0.3,0,"cm")),strip.background=element_rect(fill="grey"))
 themes = theme(axis.text=element_text(size=15), axis.title=element_text(size=16),strip.text.x = element_text(size = 16,margin = margin(.3,0,0.3,0,"cm")),strip.background=element_rect(fill="grey"))
 
 ylims = ylim(-0,25)
-ebwidth = 0.25;
-bwidth = 0.3;
+ebwidth = 0.25
+bwidth = 0.3
+wfigtext = 10
 jitterw=0.15
 yscaleforbar = scale_y_continuous(expand = c(0,0),limits = c(0,275))
 yscale = scale_y_continuous(expand = c(0,0),limits = c(0,550))
@@ -35,9 +43,10 @@ info=read.csv('./CombinedData/info_offatdox_alive5hafter_withavgbt5hpostdox_over
 
 #Making sure the last observation time of all the cells occurs after 9 hours post dox addition
 condition = (info$lastobservationtime >= (info$doxtime+9*6) | (info$lastobservation == 'burst'))
+table(condition)
 info = filter(info,condition)
 
-#ignore the Rad52, Rad51 ko cells since we never did an old experiment with those
+#ignore the Rad52, Rad51 ko cells since no aging experiment was performed with these
 condition = (info$strain != 'yTY164a') & (info$strain != 'yTY165a')
 info = filter(info,condition)
 
@@ -46,7 +55,11 @@ info$expstrain = factor(info$expstrain,levels = c('SSAcontrol','SSA','SSAhet','S
 #levels(info$expstrain) = =c('SSAcontrol','SSA','SSAheterology','SSA Dnl4ko')
 info$agestrain = factor(info$agestrain,levels= c('SSAcontrol young','SSAcontrol old','SSA young','SSA old','SSAdegcontrol young','SSAdegcontrol old','SSAdeg young','SSAdeg old','SSA Dnl4ko young','SSA Dnl4ko old','SSAhet young','SSAhet old','SSA3xCln2 young','SSA3xCln2 old'))
 
+
+#Averaging across cells in each replicate
 summary = info %>% group_by(expstrain,expage,strain,replabel,agestrain) %>% summarize(meanbt0to9= mean(avgbt0to9,na.rm=TRUE),meanbtneg4to0 = mean(avgbtneg4to0,na.rm=TRUE))
+
+#Averaging across replicates with the same strain+age condition, Calculating SEMs
 meanandsem = summary %>% group_by(expstrain,expage,agestrain) %>% summarize(avgbt0to9 = mean(meanbt0to9),sembt0to9 = sd(meanbt0to9)/sqrt(n()),avgbtneg4to0 = mean(meanbtneg4to0),sembtneg4to0 = sd(meanbtneg4to0)/sqrt(n()))
 
 outtable = paste(outfolder,'avgbtinbeforeandafterdoxaddition.csv',sep="")
@@ -63,7 +76,8 @@ expstrain1 = info$expstrain
 levels(expstrain1) = c('SSAcontrol','SSA','SSAheterology',expression(paste('SSA ',italic('dnl4'),Delta))) 
 info1 = data.frame(expstrain1,info)
 
-
+#Box plots of single cell average budding times for each strain in 9 hour post-dox window
+#Grouped by age, side-by-side with SSAcontrol strain
 strainstoplot = c('SSA','SSAhet','SSA Dnl4ko')
 ylabel = ylab('Budding Time (min)')
 xlabel = xlab('')
@@ -76,7 +90,8 @@ for(currstrain in strainstoplot[1:3]){
 	ggsave(file = plotfilename,p1,dpi=600,width=8,height=4.5)
 removeggplottext(p1,plotfilename,4,600,5,4.5)
 
-
+#Means of replicate averaged budding times for the 9 hour post-dox window
+#Grouped by age, side-by-side with SSAcontrol strain
 	currmeanandsem = filter(meanandsem1,(expstrain=='SSAcontrol' | expstrain == currstrain))
 	plotfilename = paste(curroutfolder,'avgbt0to9_',currstrain,'_youngandold_avgwithinexp_meanandsembar.pdf',sep="")
 	p1 = ggplot(currmeanandsem,aes(expage,avgbt0to9))+facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + geom_point() + geom_bar(stat = "identity", width = bwidth,fill=fillc) + geom_errorbar(aes(ymin=avgbt0to9-sembt0to9,ymax=avgbt0to9+sembt0to9),width=ebwidth) + ylabel +themes + xlabel+yscaleforbar
@@ -87,7 +102,8 @@ removeggplottext(p1,plotfilename,4,600,5,4.5)
 
 
 
-#Plotting average budding time for the time period before doxycycline addition
+#Box plots of single cell average budding times for each strain in 4 hour pre-dox window
+#Grouped by age, side-by-side with SSAcontrol strain
 for(currstrain in strainstoplot[1:3]){
 	#Boxplots with raw data overlaid
 	currinfo = filter(info1,(expstrain=='SSAcontrol' | expstrain == currstrain))
@@ -96,7 +112,8 @@ for(currstrain in strainstoplot[1:3]){
 	ggsave(file = plotfilename,p1,dpi=600,width=8,height=4.5)
 removeggplottext(p1,plotfilename,4,600,5,4.5)
 
-
+#Means of replicate averaged budding times for the 4 hour pre-dox window
+#Grouped by age, side-by-side with SSAcontrol strain
 	currmeanandsem = filter(meanandsem1,(expstrain=='SSAcontrol' | expstrain == currstrain))
 	plotfilename = paste(curroutfolder,'avgbtneg4to0_',currstrain,'_youngandold_avgwithinexp_meanandsembar.pdf',sep="")
 	p1 = ggplot(currmeanandsem,aes(expage,avgbtneg4to0))+facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + geom_point() + geom_bar(stat = "identity", width = bwidth,fill=fillc) + geom_errorbar(aes(ymin=avgbtneg4to0-sembtneg4to0,ymax=avgbtneg4to0+sembtneg4to0),width=ebwidth) + ylabel +themes + xlabel+yscaleforbar
@@ -122,11 +139,11 @@ meanandsem2 = data.frame(avgbtwindow,meanandsem2)
 currmeanandsem = filter(meanandsem2,(expstrain=='SSAcontrol'| expstrain =='SSA'))
 p1 = ggplot(currmeanandsem,aes(x=expage,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=expage,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 plotfilename = paste(outfolder,'prepostdox_avgbt_SSA_SSAcontrol_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=8,height=4.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=4.5)
 removeggplottext(p1,plotfilename,4,600,5,4.5)
 
 
-#Same plot with green and grey as the colors
+#Same plot with green and grey as the colors. For the paper
 greengrey = scale_fill_manual(values=c('gray66','green3'))
 
 hidefacet = theme(strip.background = element_blank(),strip.text.x= element_blank())
@@ -134,7 +151,7 @@ newyscale = scale_y_continuous(expand = c(0,0),limits = c(0,300))
 p1 = ggplot(currmeanandsem,aes(x=agestrain,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=agestrain,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 p1 = p1 + greengrey + border
 plotfilename = paste(outfolder1,'prepostdox_avgbt_SSA_SSAcontrol_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=6,height=3.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=3.5)
 p1 = p1 + hidefacet + newyscale
 removeggplottext(p1,plotfilename,4,600,6,3.5)
 
@@ -147,13 +164,14 @@ removeggplottext(p1,plotfilename,4,600,6,3.5)
 currmeanandsem = filter(meanandsem2,(expstrain=='SSAhet'| expstrain =='SSA'))
 p1 = ggplot(currmeanandsem,aes(x=expage,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=expage,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 plotfilename = paste(outfolder,'prepostdox_avgbt_SSA_SSAhet_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=8,height=4.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=4.5)
 removeggplottext(p1,plotfilename,4,600,5,4.5)
 
+#Same plot with green and grey as the colors. For the paper
 p1 = ggplot(currmeanandsem,aes(x=agestrain,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=agestrain,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 p1 = p1 + greengrey + border
 plotfilename = paste(outfolder1,'prepostdox_avgbt_SSA_SSAhet_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=6,height=3.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=3.5)
 p1 = p1 + hidefacet + newyscale
 removeggplottext(p1,plotfilename,4,600,6,3.5)
 
@@ -164,46 +182,31 @@ removeggplottext(p1,plotfilename,4,600,6,3.5)
 currmeanandsem = filter(meanandsem2,(expstrain=='SSA Dnl4ko'| expstrain =='SSA'))
 p1 = ggplot(currmeanandsem,aes(x=expage,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=expage,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 plotfilename = paste(outfolder,'prepostdox_avgbt_SSA_SSADnl4ko_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=8,height=4.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=4.5)
 removeggplottext(p1,plotfilename,4,600,5,4.5)
 
+#Same plot with green and grey as the colors. For the paper
 p1 = ggplot(currmeanandsem,aes(x=agestrain,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=agestrain,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 p1 = p1 + greengrey + border
 plotfilename = paste(outfolder1,'prepostdox_avgbt_SSA_SSADnl4ko_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=6,height=3.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=3.5)
 p1 = p1 + hidefacet + newyscale
 removeggplottext(p1,plotfilename,4,600,6,3.5)
 
 	
 	
-#Plotting pre and post-dox side by side for SSA Dnl4ko and SSA strains.  Average across cells in an experiment
+#Plotting pre and post-dox side by side for SSA+RFPdegron and SSA strains.  Average across cells in an experiment
 currmeanandsem = filter(meanandsem2,(expstrain=='SSAdeg'| expstrain =='SSA'))
 p1 = ggplot(currmeanandsem,aes(x=expage,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=expage,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 plotfilename = paste(outfolder,'prepostdox_avgbt_SSA_SSAdeg_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=8,height=4.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=4.5)
 removeggplottext(p1,plotfilename,4,600,5,4.5)
 
+#Same plot with green and grey as the colors. For the paper
 p1 = ggplot(currmeanandsem,aes(x=agestrain,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=agestrain,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 p1 = p1 + greengrey + border
 plotfilename = paste(outfolder1,'prepostdox_avgbt_SSA_SSAdeg_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=6,height=3.5)
-p1 = p1 + hidefacet + newyscale
-removeggplottext(p1,plotfilename,4,600,6,3.5)
-
-
-
-
-#Plotting pre and post-dox side by side for SSA Dnl4ko and SSA strains.  Average across cells in an experiment
-currmeanandsem = filter(meanandsem2,(expstrain=='SSAdeg'| expstrain =='SSA'))
-p1 = ggplot(currmeanandsem,aes(x=expage,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=expage,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
-plotfilename = paste(outfolder,'prepostdox_avgbt_SSA_SSAdeg_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=8,height=4.5)
-removeggplottext(p1,plotfilename,4,600,5,4.5)
-
-p1 = ggplot(currmeanandsem,aes(x=agestrain,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=agestrain,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
-p1 = p1 + greengrey + border
-plotfilename = paste(outfolder1,'prepostdox_avgbt_SSA_SSAdeg_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=6,height=3.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=3.5)
 p1 = p1 + hidefacet + newyscale
 removeggplottext(p1,plotfilename,4,600,6,3.5)
 
@@ -215,13 +218,13 @@ currmeanandsem = filter(meanandsem2,(expstrain=='SSAdegcontrol'| expstrain =='SS
 currmeanandsem = filter(currmeanandsem,expage=='old')
 p1 = ggplot(currmeanandsem,aes(x=expage,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=expage,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + facet_grid(.~expstrain1,scales="free_x",labeller = label_parsed) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 plotfilename = paste(outfolder,'prepostdox_avgbt_SSAcontrol_SSAdegcontrol_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=6,height=4.5)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=4.5)
 removeggplottext(p1,plotfilename,4,600,6,4.5)
 
 p1 = ggplot(currmeanandsem,aes(x=agestrain,y=mean,fill=avgbtwindow)) + geom_bar(stat="identity",width=bwidth,position="dodge") + geom_errorbar(aes(x=agestrain,ymin=mean-sem,ymax=mean+sem),width=ebwidth,position=position_dodge(width=0.3)) + yscaleforbar + labs(fill = "time window") + ylabel +themes + xlabel
 p1 = p1 + greengrey + border
 plotfilename = paste(outfolder1,'prepostdox_avgbt_SSAcontrol_SSAdegcontrol_meansembar.pdf',sep="")
-ggsave(file = plotfilename,p1,dpi=600,width=5,height=4)
+ggsave(file = plotfilename,p1,dpi=600,width=wfigtext,height=4)
 p1 = p1 + hidefacet + newyscale
 removeggplottext(p1,plotfilename,4,600,5,4)
 

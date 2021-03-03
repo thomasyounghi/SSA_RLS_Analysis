@@ -1,8 +1,11 @@
+#For cells that were unrepaired (YFP-) at the time of doxycycline treatment, calculate the average budding time in the 4 hour time window preceding doxycycline treatment and the 9 hour time window after doxycycline addition.
+#Resulting data is saved in './CombinedData/info_offatdox_alive5hafter_withavgbt5hpostdox_overlappingbisbefore.csv'
 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
 library(dplyr)
 library(ggplot2)
 library(reshape2)
@@ -73,7 +76,7 @@ avgbtonlyininterval <- function(bts,start,end,lastobst){
 
 
 #Computing the average budding time for the 5 h post dox time window, only rounding to the nearest bud before
-#Also computing the number of buds appearing within the time window - gives a better sense of what
+#Also computing the number of buds appearing within the time window for reference
 start = info$doxtime + 24;
 end = info$doxtime + 54;
 avgbt = mapply(avgbtininterval,bt,start,end,end)
@@ -88,18 +91,18 @@ avgbt = mapply(avgbtininterval,bt,start,end,end)
 avgbt0to4 = avgbt*10
 nbud0to4 = mapply(countininterval,bt,start,end)
 
-#Computing the length of partial budding interval ending at the 5 h postdox time point. Converted to minutes
+#Computing the length of partial budding interval ending at the 5 hour post-dox time point. Converted to minutes
 end = info$doxtime+ 54
 partbibefore9h = end - mapply(highestvaluebelow,bt,end)
 partbibefore9h = partbibefore9h*10
 
-#Computing the average budding interval for the 9 h period after dox, including only intervals starting after the dox addition #time
+#Computing the average budding interval for the 9 h period after dox addition, including only intervals starting after the dox addition #time
 start = info$doxtime
 end = info$doxtime + 9*6;
 avgbt = mapply(avgbtininterval,bt,start,end,end)
 avgbt0to9 = avgbt*10
 
-#Computing the average budding interval for the 4 h period prior to dox
+#Computing the average budding interval for the 4 h period prior to dox addition
 start = info$doxtime-24
 end = info$doxtime;
 avgbt = mapply(avgbtininterval,bt,start,end,end)

@@ -45,7 +45,7 @@ lastofftime = unlist(lapply(greaterthanco,lastfalseindex))
 lastontime = unlist(lapply(greaterthanco,lasttrueindex))
 
 #Classifying single-cell YFP trajectories based on the lastofftime and lastontime
-yfpclasshc = rep(nrow(info))
+yfpclasshc = rep('',nrow(info))
 yfpclasshc[is.na(lastofftime)] = 'alwayson'
 yfpclasshc[is.na(lastontime)] = 'alwaysoff'
 yfpclasshc[lastontime>lastofftime] = 'turnedon'
@@ -63,7 +63,7 @@ lastofftime = unlist(lapply(greaterthanco,lastfalseindex))
 lastontime = unlist(lapply(greaterthanco,lasttrueindex))
 
 ##Classifying single-cell YFP trajectories based on the lastofftime and lastontime
-yfpclasslc = rep(nrow(info))
+yfpclasslc = rep('',nrow(info))
 yfpclasslc[is.na(lastofftime)] = 'alwayson'
 yfpclasslc[is.na(lastontime)] = 'alwaysoff'
 yfpclasslc[lastontime>lastofftime] = 'turnedon'

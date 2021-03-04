@@ -4,10 +4,11 @@
 
 
 #we need to specify how the columns of the two 
-setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis/')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/Preprocessing_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/timeseries_func.Rd')
-source('/Users/thomasyoung/Dropbox/templates/R_aging_template/functions/func.Rd')
+setwd('/Users/thomasyoung/Dropbox/MovieProcessing/March2018_Analysis_git')
+source('./functions/timeseries_func.Rd')
+source('./functions/func.Rd')
+source('./functions/Preprocessing_func.Rd')
+
 library(dplyr)
 library(ggplot2)
 library(reshape2)
@@ -110,7 +111,6 @@ lastofftimemanual = yfpdelayed$firstlegitontime-1;
 lastofftimemanual = lastofftimemanual[condition]
 matches = matches[condition];
 lastofftime[matches] = lastofftimemanual;
-
 
 lastofftime= as.numeric(lastofftime)
 yfpclassfinal = data.frame(auto,yfpclass,lastofftime)

@@ -15,9 +15,12 @@ Analysis scripts for measuring the effect of replicative aging on single strand 
 5_brightneighboringcells.R
 6_adjustmentforbrightneighbors.R
 
+7_ControlStrain_RFPandYFP.R
+
 7_ClassifyingYFP.R  (the classifications here were not ultimately used)
 7_ClassifyingYFP_alltimes.R
-7_ControlStrain_RFPandYFP.R
+
+8_CombiningManualAutoYFPclass_allstrains.R
 
 9_AssessingRepair_5hafterdoxremoval.R
 9_AssessingRepairatLaterTimePoints.R
@@ -33,20 +36,6 @@ Analysis scripts for measuring the effect of replicative aging on single strand 
 
 11_BTin5hafterdoxremoval_roundingtonearestbudbefore.R
 11_BT_Comparison_PrePostDox_notbyyfpclass.R
-
-
-
-
-#YFP classification
-7_Revised_YFPrepair_assessment_cellstomanuallycheck
-7_Revised_YFPrepair_assessment.R
-<-these two files were combined.
-
-#This was originally used,but the inputs changed. Remove this
-8_CombiningManualAutoYFPclass
-
-#This was ultimately used
-8_CombiningManualAutoYFPclass_allstrains.R
 
 
 
